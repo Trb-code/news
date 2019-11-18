@@ -68,8 +68,11 @@
             //     Authorization: window.localStorage.getItem("token")
             // },
             success: function (res) {
+                // 获取个人头像
                 $(".user_info>img").attr("src", res.data.userPic)
+                // 动态获取用户名
                 $(".user_info>span").html("欢迎&nbsp;&nbsp" + res.data.nickname)
+                // 获取个人头像
                 $(".user_center_link>img").attr("src", res.data.userPic)
 
                 // console.log(res);
@@ -77,7 +80,9 @@
         })
         // 点击退出实现的逻辑
         $(".logout").on("click", function () {
+            // 删除本地储存
             window.localStorage.removeItem("token")
+            // 返回登录页面
             window.location.href = "./login.html"
         })
 

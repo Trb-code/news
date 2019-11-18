@@ -56,13 +56,13 @@
     </div>
 
     <!-- 书写js -->
-
-
+    <!-- 抽离基地址，综合处理请求地址 -->
+    <script src="./libs/http.js"></script>
     <script>
         // 头像，用户名数据部分
         // 请求ajax
         $.get({
-            url: "http://localhost:8080/api/v1/admin/user/info",
+            url: window.BigNew.user_info,
             // 设置请求头，token跟ajax一起发送，没有的话token，跳转到登录页面，所有页面都要检查是否有token，所以需要抽离到jQuery中
             // headers: {
             //     Authorization: window.localStorage.getItem("token")

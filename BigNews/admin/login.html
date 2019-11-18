@@ -66,8 +66,8 @@
     </div>
   </div>
 
-
-
+  <!-- 抽离基地址，综合处理请求地址 -->
+  <SCript src="./libs/http.js"></SCript>
   <script>
 
     $(function () {
@@ -86,7 +86,7 @@
         // 请求阿贾克斯
         $.ajax({
           type: "post",
-          url: "http://localhost:8080/api/v1/admin/user/login",
+          url: window.BigNew.user_login,
           data: {
             username: uesName,
             password: passwrd

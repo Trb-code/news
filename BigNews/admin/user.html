@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="css/iconfont.css">
     <link rel="stylesheet" href="css/main.css">
     <script src="./libs/jquery-1.12.4.min.js"></script>
-
+    <!-- 请求地址 -->
+    <script src="./libs/http.js"></script>
 </head>
 
 <body>
@@ -68,6 +69,74 @@
             </form>
         </div>
     </div>
+
+
+
+    <script>
+        $(function () {
+            // 请求ajax 获取用户数据
+            $.get({
+                url: window.BigNew.user_detail,
+                success: function (res) {
+                    // console.log(res);
+                    // 获取用户名
+                    $("#inputEmail1").val(res.data.username)
+                    // 获取用户昵称
+                    $("#inputEmail2").val(res.data.nickname)
+                    // 获取用户邮件地址
+                    $("#inputEmail3").val(res.data.email)
+                    // 获取用户头像
+                    $("#exampleInputFile").attr("src", res.data.userPic)
+                    // 获取用户密码
+                    $("#inputEmail4").val(res.data.password)
+                }
+            })
+        })
+
+
+
+    </script>
+    <!-- 用户信息修改
+    <script>
+        // 获取数据
+        // let $inputEmail1 = $("#inputEmail1").val()
+        // let $inputEmail2 = $("#inputEmail2").val()
+        // let $inputEmail3 = $("#inputEmail3").val()
+        // let $inputEmail4 = $("#inputEmail4").val()
+        // let $inputEmail5 = $("#exampleInputFile").attr("src")
+
+        let $inputEmail1 = document.querySelector("#inputEmail1").value
+        let $inputEmail2 = document.querySelector("#inputEmail2").value
+        let $inputEmail3 = document.querySelector("#inputEmail3").value
+        let $inputEmail4 = document.querySelector("#inputEmail4").value
+        let $inputEmail5 = document.querySelector("#exampleInputFile").getAttribute("src")
+
+
+        const button = document.querySelector("button")
+
+        button.onclick = function () {
+
+            let data = new FormData()
+            $.post({
+                // 因为将数据转换成了二进制所以不需要设置请求头
+                contentType: false,
+                // 不需要再进行编码
+                processData: false,
+                url: window.BigNew.user_edit,
+                data: {
+
+                },
+                success: function (result) {
+                    console.log(result);
+
+                }
+
+            })
+
+        }
+
+    </script> -->
+
 </body>
 
 </html>

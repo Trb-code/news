@@ -25,20 +25,23 @@
         </div>
         <!-- 左侧导航栏 -->
         <div class="menu">
-            <div class="level01 active"><a href="#" target="main_frame"><i
+            <div class="level01 active"><a href="main_count.html" target="main_frame"><i
                         class="iconfont icon-yidiandiantubiao04"></i><span>首页</span></a></div>
             <div class="level01"><a href="#"><i class="iconfont icon-icon-article"></i><span>文章管理</span><b
                         class="iconfont icon-arrowdownl"></b></a></div>
             <ul class="level02">
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
-                <li><a href="#" target="main_frame"><i class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
+                <li><a href="./article_list.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章列表</span></a></li>
+                <li><a href="./article_release.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>发表文章</span></a></li>
+                <li><a href="./article_category.html" target="main_frame"><i
+                            class="iconfont icon-previewright"></i><span>文章类别管理</span></a>
                 </li>
             </ul>
 
-            <div class="level01"><a href="#" target="main_frame"><i
+            <div class="level01"><a href="./comment_list.html" target="main_frame"><i
                         class="iconfont icon-comment"></i><span>评论管理</span></a></div>
-            <div class="level01" id="user"><a href="#" target="main_frame"><i
+            <div class="level01" id="user"><a href="./user.html" target="main_frame"><i
                         class="iconfont icon-user"></i><span>个人中心</span></a></div>
         </div>
         <!-- 顶部栏 -->
@@ -51,7 +54,7 @@
         </div>
         <!-- 右侧主体内容 -->
         <div class="main" id="main_body">
-
+            <iframe src="./main_count.html" frameborder="0" name="main_frame" style="width: 100%;height: 100%"></iframe>
         </div>
     </div>
 
@@ -59,33 +62,56 @@
     <!-- 抽离基地址，综合处理请求地址 -->
     <script src="./libs/http.js"></script>
     <script>
-        // 头像，用户名数据部分
-        // 请求ajax
-        $.get({
-            url: window.BigNew.user_info,
-            // 设置请求头，token跟ajax一起发送，没有的话token，跳转到登录页面，所有页面都要检查是否有token，所以需要抽离到jQuery中
-            // headers: {
-            //     Authorization: window.localStorage.getItem("token")
-            // },
-            success: function (res) {
-                // 获取个人头像
-                $(".user_info>img").attr("src", res.data.userPic)
-                // 动态获取用户名
-                $(".user_info>span").html("欢迎&nbsp;&nbsp" + res.data.nickname)
-                // 获取个人头像
-                $(".user_center_link>img").attr("src", res.data.userPic)
+        $(function () {
+            // 头像，用户名数据部分
+            // 请求ajax
+            $.get({
+                url: window.BigNew.user_info,
+                // 设置请求头，token跟ajax一起发送，没有的话token，跳转到登录页面，所有页面都要检查是否有token，所以需要抽离到jQuery中
+                // headers: {
+                //     Authorization: window.localStorage.getItem("token")
+                // },
+                success: function (res) {
+                    // 获取个人头像
+                    $(".user_info>img").attr("src", res.data.userPic)
+                    // 动态获取用户名
+                    $(".user_info>span").html("欢迎&nbsp;&nbsp" + res.data.nickname)
+                    // 获取个人头像
+                    $(".user_center_link>img").attr("src", res.data.userPic)
 
-                // console.log(res);
-            }
-        })
-        // 点击退出实现的逻辑
-        $(".logout").on("click", function () {
-            // 删除本地储存
-            window.localStorage.removeItem("token")
-            // 返回登录页面
-            window.location.href = "./login.html"
-        })
+                    // console.log(res);
+                }
+            })
+            // 点击退出实现的逻辑
+            $(".logout").on("click", function () {
+                // 删除本地储存
+                window.localStorage.removeItem("token")
+                // 返回登录页面
+                window.location.href = "./login.html"
+            })
 
+            // 左边导航栏排他效果
+            $("div.level01").on("click", function () {
+                // 排他效果
+                $(this).addClass("active").siblings("div").removeClass("active")
+                // console.log($(this).index());
+                // 当点中文章管理，索引值为1的时候
+                if ($(this).index() == 1) {
+
+                    $(".level02").toggle()
+                    $('ul.level02 li:eq(0)>a')[0].click();
+                    $(".icon-arrowdownl").toggleClass('rotate0')
+                    // $(this).find('b').toggleClass('rotate0');
+                }
+
+
+            })
+            // 文章管理中的列表 排他效果
+            $("ul>li").on("click", function () {
+                $(this).addClass("active").siblings().removeClass("active")
+            })
+
+        })
     </script>
 
 

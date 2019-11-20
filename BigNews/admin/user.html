@@ -45,7 +45,7 @@
                     <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
                     <div class="col-sm-10">
                         <img src="images/2.jpg" alt="" class="user_pic">
-                        <input style="display: block" name="userPic" type="file" id="exampleInputFile">
+                        <input style="display: none" name="userPic" type="file" id="exampleInputFile">
                         <!-- 给label标签的for属性赋值,值是input标签的id,那这样的话点击label就相当于点击了input -->
                         <br>
                         <label for="exampleInputFile">
@@ -86,56 +86,77 @@
                     // 获取用户邮件地址
                     $("#inputEmail3").val(res.data.email)
                     // 获取用户头像
-                    $("#exampleInputFile").attr("src", res.data.userPic)
+                    $(".user_pic").attr("src", res.data.userPic)
                     // 获取用户密码
                     $("#inputEmail4").val(res.data.password)
                 }
             })
-        })
 
 
 
-    </script>
-    <!-- 用户信息修改
-    <script>
-        // 获取数据
-        // let $inputEmail1 = $("#inputEmail1").val()
-        // let $inputEmail2 = $("#inputEmail2").val()
-        // let $inputEmail3 = $("#inputEmail3").val()
-        // let $inputEmail4 = $("#inputEmail4").val()
-        // let $inputEmail5 = $("#exampleInputFile").attr("src")
-
-        let $inputEmail1 = document.querySelector("#inputEmail1").value
-        let $inputEmail2 = document.querySelector("#inputEmail2").value
-        let $inputEmail3 = document.querySelector("#inputEmail3").value
-        let $inputEmail4 = document.querySelector("#inputEmail4").value
-        let $inputEmail5 = document.querySelector("#exampleInputFile").getAttribute("src")
+            // 预览头像
+            // 产生一个改变事件
+            $("#exampleInputFile").on("change", function (res) {
+                // 图片存放的信息，没有图片地址
+                console.log(this.files[0]);
+                const imgms = this.files[0]
+                // 转化为url地址
+                const imgurl = URL.createObjectURL(imgms)
+                console.log(imgurl);
+                // 设置对应地址
+                $(".user_pic").attr("src", imgurl)
+            })
 
 
-        const button = document.querySelector("button")
+            // 修改用户信息  有问题
 
-        button.onclick = function () {
+            $("button.btn-success").on("click", function (e) {
+                e.preventDefault()
+                let form = $("#form")[0]
+                // let form = document.querySelector("#form")
+                console.log(form);
+                let data = new FormData(form)
 
-            let data = new FormData()
-            $.post({
-                // 因为将数据转换成了二进制所以不需要设置请求头
-                contentType: false,
-                // 不需要再进行编码
-                processData: false,
-                url: window.BigNew.user_edit,
-                data: {
+                $.post({
+                    url: BigNew.user_edit,
+                    data: data,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            // parent.window.location.reload();
+                            $.ajax({
+                                type: 'get',
+                                url: window.BigNew.user_info,
+                                success: function (res) {
+                                    //获取到返回的用户信息，在页面渲染
+                                    // parent在子页面获取到父页面的元素
+                                    parent.$('.user_info>img').attr('src', res.data.userPic);
+                                    parent.$('.user_info>span').html('欢迎&nbsp;&nbsp;' + res.data.nickname);
+                                    parent.$('.user_center_link>img').attr('src', res.data.userPic)
 
-                },
-                success: function (result) {
-                    console.log(result);
+                                    //刷新子页面
+                                    window.location.reload();
+                                }
+                            })
+                        }
+                    }
+                })
 
-                }
+
 
             })
 
-        }
 
-    </script> -->
+
+
+
+
+
+        })
+    </script>
+
 
 </body>
 

@@ -14,6 +14,22 @@
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 准备模板 -->
+    <script type="text/html" id="list">
+        {{each data}}
+        <tr>
+            <td>{{$value.name}} </td>
+            <td>{{$value.slug}} </td>
+            <td class="text-center">
+                <a href="javascript:void(0)"   data-id='{{$value.id}}'  data-toggle="modal" class=" btn btn-info btn-xs" id="bianji">编辑</a>
+                <a href="javascript:void(0)"    data-id='{{$value.id}}' class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+</script>
+
+
+
 </head>
 
 <body>
@@ -35,7 +51,8 @@
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
-                            <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                            <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs"
+                                id="bianji">编辑</a>
                             <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
                         </td>
                     </tr>
@@ -43,14 +60,203 @@
                 <tfoot>
                     <tr>
                         <td colspan="3" class="text-center">
-                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei" data-toggle="modal"
-                                data-target="#myModal">新增分类</a>
+                            <a href="javascript:void(0)" class="btn btn-success" id="xinzengfenlei">新增分类</a>
                         </td>
                     </tr>
                 </tfoot>
             </table>
         </div>
     </div>
+
+
+
+    <!-- 模态框引入 ---------------------------->
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">新增分类</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">主题:</label>
+                            <input type="text" class="form-control" id="recipientname">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">内容:</label>
+                            <textarea class="form-control" id="messagetext"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-primary">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 模态框结束-------------------------------------------- -->
+
+    <script src="./libs/http.js"></script>
+    <script>
+        // 文章类别管理---获取列表
+        $(function () {
+            // 发送ajax
+            function getdata() {
+
+
+                $.get({
+                    url: BigNew.category_list,
+                    success: function (res) {
+                        // console.log(res);
+                        // 渲染模板
+                        let htmlstr = template("list", res)
+                        // 渲染到网页
+                        $("tbody").html(htmlstr)
+
+                    }
+                })
+            }
+            getdata()
+            // 点击新增分类产生弹窗, 通过js调用
+            $("#xinzengfenlei").on("click", function () {
+                $('#exampleModal').modal()
+                // 点击确认添加新的文章
+                $(".btn-primary").on("click", function () {
+                    // 获取主题
+                    let name = $("#recipientname").val()
+                    // 获取内容
+                    let mtext = $("#messagetext").val()
+                    // 发送ajax
+                    $.post({
+                        url: BigNew.category_add,
+                        data: {
+                            name: name,
+                            slug: mtext
+                        },
+                        success: function (res) {
+                            // console.log(res);
+                            // 创建成功
+                            if (res.code == 201) {
+                                // 关闭弹窗
+                                $('#exampleModal').modal('hide')
+                                // 刷新页面
+                                getdata()
+                            }
+                        }
+                    })
+                })
+            })
+
+            // 点击编辑 获取原本内容，赋值给input
+
+            $("tbody").on("click", "#bianji", function () {
+                // 弹窗
+                $('#exampleModal').modal()
+
+
+                // console.log($(this)[0].getAttribute("data-id"));
+                // 获取id   用原生方法  $(this)[0]转为js对象  jQuery获取不了
+                let dataid = $(this)[0].getAttribute("data-id")
+
+                // let dataid = $(this).at
+                // console.log(dataid);
+                // console.log($(this));
+
+                //   发送ajax
+                $.get({
+                    url: BigNew.category_search,
+                    data: {
+                        id: dataid
+                    },
+                    success: function (res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            // 内容赋值上去
+                            $("#recipientname").val(res.data[0].name)
+                            $("#messagetext").val(res.data[0].slug)
+                        }
+                    }
+                })
+
+                // 编辑内容
+                $(".btn-primary").on("click", function () {
+                    // 获取内容
+                    let name = $("#recipientname").val()
+                    let slug = $("#messagetext").val()
+                    // let dataid = $(this)[0].getAttribute("data-id")
+                    // console.log(slug);
+                    // console.log(name);
+                    // console.log(dataid);
+
+                    // 发送ajax
+                    $.post({
+                        url: BigNew.category_edit,
+                        data: {
+                            name: name,
+                            slug: slug,
+                            id: dataid
+                        },
+                        success: function (res) {
+                            // console.log(res);
+                            // 状态等于200，修改成功
+                            if (res.code == 200) {
+                                // 隐藏模态框
+                                $('#exampleModal').modal('hide')
+                                // 刷新数据
+                                getdata()
+
+                            }
+
+
+                        }
+                    })
+                })
+
+
+            })
+
+
+
+
+
+
+
+
+
+            // 删除部分
+            $("tbody").on("click", ".btn-danger", function () {
+                const ok = confirm("确定删除吗？")
+                // console.log(ok);
+                // console.log($(this));
+                let delet = $(this)[0].getAttribute("data-id")
+                // console.log(delet);
+
+
+                if (ok == true) {
+                    $.post({
+                        data: { id: delet },
+                        url: BigNew.category_delete,
+                        success: function (res) {
+                            console.log(res);
+                            if (res.code == 204) {
+                                getdata()
+                            }
+                        }
+                    })
+                }
+            })
+        })
+    </script>
+
+
+
+
 </body>
 
 </html>

@@ -22,7 +22,7 @@
 
     <!-- 文章列表获取所有分类  模板引擎-->
     <script type="text/html" id="listclass">
-        <option >所有分类 </option>
+        <option value="">所有分类 </option>
 {{each data}}
 <option value={{$value.id}} >{{$value.name}} </option>
 {{/each}}
@@ -38,8 +38,8 @@
             <td class="text-center">{{$value.date}} </td>
             <td class="text-center">{{$value.state}} </td>
             <td class="text-center">
-                <a href="article_edit.html" data-id={{$value.id}}  class="btn btn-default btn-xs">编辑</a>
-                <a href="javascript:void(0);" data-id={{$value.id}}  class="btn btn-danger btn-xs delete">删除</a>
+                <a href="article_edit.html?+id={{$value.id}} "  class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{$value.id}} " class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
 {{/each}}
@@ -113,7 +113,6 @@
         <script>
             $(function () {
 
-
                 // 文章列表所有分类
                 $.get({
                     url: BigNew.category_list,
@@ -122,12 +121,14 @@
                         // 渲染模板
                         let htmlstr = template("listclass", res)
                         // 渲染到网页
+                        console.log(res);
+
                         $("#selCategory").html(htmlstr)
                     }
                 })
-
-
+                // 设置当前页为第一天
                 let mypapg = 1
+                // 每页10条数据
                 let myperpage = 10
                 // 获取文章内容
                 // $("#selCategory").val() 可以获取提前存放好的id值
@@ -145,13 +146,16 @@
                         // console.log(res);
                         let atrhtml = template("artlist", res)
                         $("tbody").html(atrhtml)
-                        // 分页插件
+
+                        // 分页插件66
                         $("#wr-page").wrpage({
                             pagesize: res.data.totalPage,
                             wr_current: 1,
                             cb: function (page) {
                                 // 点击的页面 id值赋值给ajax的返回数据mypapg
                                 mypapg = page
+
+                                // 重新加载页面
                                 $.get({
                                     url: BigNew.article_query,
                                     data: {
@@ -164,24 +168,70 @@
                                         let atrhtml = template("artlist", res)
                                         $("tbody").html(atrhtml)
                                     }
-
                                 })
                             }
                         })
                     }
-
-                    // 点击删除按钮
-
-
                 })
 
-                // 分页
+                // 点击删除部分 事件委派
+                $("tbody").on("click", ".delete", function () {
+                    // console.log($(this));
+                    // let tid = $(this).attr("data-id")
+                    // 获取之前存放的id值
+                    let deid = $(this)[0].getAttribute("data-id")
+                    // console.log(deid);
+                    // 弹窗提示
+                    var ok = confirm("确定删除吗")
+                    if (ok == true) {
+                        // 发送删除ajax
+                        $.post({
+                            data: {
+                                id: deid
+                            },
+                            url: BigNew.article_delete,
+                            success: function (res) {
+                                // console.log(res);
+                                // 重新加载
+                                $.get({
+                                    url: BigNew.article_query,
+                                    data: {
+                                        id: $("#selCategory").val(),
+                                        state: $("#selStatus").val(),
+                                        page: mypapg,
+                                        perpage: myperpage,
+                                    }, success: function (res) {
+                                        // console.log(res);
+                                        let atrhtml = template("artlist", res)
+                                        $("tbody").html(atrhtml)
+                                    }
+                                })
+                            }
+                        })
+                    }
+                })
 
+                // 点击筛选55
+                $("#btnSearch").on("click", function (e) {
+                    e.preventDefault()
 
+                    $.get({
+                        url: BigNew.article_query,
+                        data: {
+                            type: $('#selCategory').val(),
+                            state: $('#selStatus').val(),
+                        },
+                        success: function (res) {
+                            console.log(res);
+                            if (res.code == 200) {
+                                // 分页插件
+                                // $("#wr-page").wrpage("changepagesize", res.data.totalPage)
+                                // $("#wr-page").changepagesize(res.data.totalPage)
+                            }
+                        }
+                    })
 
-
-
-
+                })
 
 
             })

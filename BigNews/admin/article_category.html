@@ -109,7 +109,6 @@
             // 发送ajax
             function getdata() {
 
-
                 $.get({
                     url: BigNew.category_list,
                     success: function (res) {
@@ -118,11 +117,19 @@
                         let htmlstr = template("list", res)
                         // 渲染到网页
                         $("tbody").html(htmlstr)
-
                     }
                 })
             }
             getdata()
+
+            //  点击模态框取消的时候清空内容
+            $(".btn-default").on("click", function () {
+                // jQuery对象转为原生调用方法 加[0]
+                $('.modal-body form')[0].reset();
+            })
+
+
+
             // 点击新增分类产生弹窗, 通过js调用
             $("#xinzengfenlei").on("click", function () {
                 $('#exampleModal').modal()
@@ -158,6 +165,10 @@
             $("tbody").on("click", "#bianji", function () {
                 // 弹窗
                 $('#exampleModal').modal()
+                // 重置内容
+                $('.modal-body form')[0].reset();
+                // $("#exampleModalLabel").text("编辑分类")
+
 
 
                 // console.log($(this)[0].getAttribute("data-id"));
@@ -212,20 +223,12 @@
                                 getdata()
 
                             }
-
-
                         }
                     })
                 })
 
 
             })
-
-
-
-
-
-
 
 
 

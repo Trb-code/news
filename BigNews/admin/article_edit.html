@@ -12,17 +12,66 @@
     <link rel="stylesheet" href="css/main.css">
     <!-- jq -->
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <!-- bootstrap引入js -->
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+
+    <!-- 日期插件 引入-->
+    <link rel="stylesheet" href="./jedate-6.5.0/skin/jedate.css">
+    <link rel="stylesheet" href="./jedate-6.5.0/test/jeDate-test.css">
+    <script src="./jedate-6.5.0/src/jedate.js"></script>
+    <!-- 请求地址 -->
+    <script src="./libs/http.js"></script>
+    <!-- 富文本js引入 -->
+    <script src="./libs/wangEditor.js"></script>
     <!-- 模板引擎 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 文章类别 模板引擎 -->
+    <script type="text/html" id="artclass">
+      {{each data }}
+      <option value="{{$value.id}}" >{{$value.name}} </option>
+      {{/each}}
+    
+    
+    </script>
+
+
 </head>
 
 <body>
+    <!-- 模态框 -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">提示</h4>
+                </div>
+                <div class="modal-body">
+                    <div>修改完成</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-success" data-dismiss="modal">关闭</button>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 模态框------------------------ -->
+
+
+
+
+
     <div class="container-fluid">
         <div class="common_title">
-            文章编辑
+            文章修改
         </div>
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form" id="form">
+                <input type="hidden" name='id' id="categoryId">
                 <div class="form-group">
                     <label for="inputTitle" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
@@ -40,22 +89,23 @@
                     <label for="inputCategory" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-4">
                         <select class="form-control category" name="categoryId">
-                            <option>类别一</option>
+                            <!-- <option>类别一</option>
                             <option>类别二</option>
                             <option>类别三</option>
                             <option selected>类别四</option>
-                            <option>类别五</option>
+                            <option>类别五</option> -->
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-2 control-label">发布时间：</label>
-                    <div class="col-sm-4">
-                    </div>
+                    <label class="col-sm-2 control-label">修改时间：</label>
+                    <div class="jeinpbox"><input type="text" name="date" class="jeinput" id="short"
+                            placeholder="YYYY年MM月DD日"></div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
-                    <div class="col-sm-10">
+                    <div id="editor" class="col-sm-6">
+                        <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -67,6 +117,215 @@
             </form>
         </div>
     </div>
+
+    <script>
+
+
+        $(function () {
+
+            // 图片预览效果
+            $("#inputCover").on("change", function () {
+
+                let img = this.files[0]
+                let imgurl = URL.createObjectURL(img)
+
+                $(".article_cover").attr("src", imgurl)
+
+
+            })
+
+
+
+            // 日期插件
+            jeDate("#short", {
+                isinitVal: true,
+                // festival: true,
+                format: 'YYYY年MM月DD日 hh:mm:ss'
+            });
+
+            // 富文本插件
+            var E = window.wangEditor
+            var editor = new E('#editor')
+            // 或者 var editor = new E( document.getElementById('editor') )
+            editor.create()
+
+
+
+
+            // 模板引擎渲染文章类别
+            $.get({
+                url: BigNew.category_list,
+                success: function (res) {
+                    // console.log(res);
+                    if (res.code == 200) {
+                        var htmlclass = template("artclass", res)
+                        $("select.category").html(htmlclass)
+                    }
+                }
+            })
+
+
+
+            // 根据id获取文章信息 返回的数据显示在页面 用于修改
+            // console.log(window.location.search);
+            // 获取id 第一种方法
+            // let str = window.location.search
+            // str = str.slice(1)
+            // let endstr = str.slice(3)
+            // console.log(endstr);
+            // $("#categoryId").val(endstr)
+            // 获取id第二种方法
+            // 字符串转为对象 获取id 值
+            function str2boj(str) {
+                str = str.slice(1)
+                serach = str.split("&")
+                var obj = {}
+                for (var key in serach) {
+                    let news = serach[key].split("=")
+                    obj[news[0]] = news[1]
+                }
+                return obj;
+            }
+            let endstr = str2boj(window.location.search).id
+            // 发送ajax获取文章内容，显示在页面
+            $.get({
+                url: BigNew.article_search,
+                data: {
+                    id: endstr
+                },
+                success: function (res) {
+                    // console.log(res.data.id);
+                    if (res.code === 200) {
+                        $(".article_cover").attr("src", res.data.cover)
+                        $("#short").val(res.data.date)
+                        $("#inputTitle").val(res.data.title)
+                        editor.txt.html(res.data.content)
+                        $("#categoryId").val(res.data.id)
+                    }
+                }
+            })
+
+            // 修改按钮
+            // let str = window.location.search
+            // str = str.slice(1)
+            // let endstr = str.slice(3)
+
+            // $(".btn-edit").on("click", function (e) {
+            //     // 阻止默认行为
+            //     e.preventDefault()
+            //     $.post({
+            //         url: BigNew.article_edit,
+            //         // processData: false,
+            //         // //不需要设置头部
+            //         // contentType: false,
+            //         data: {
+            //             title: $("#inputTitle").val(),
+            //             id: endstr,
+            //             cover: $(".article_cover").attr("src"),
+            //             categoryId: $("#selectclass").val(),
+            //             date: $("#short").val(),
+            //             content: editor.txt.html(),
+            //             state: "已发布"
+            //         },
+            //         success: function (res) {
+            //             console.log(res);
+            //             if (res.code == 200) {
+            //                 alert("修改成功")
+            //                 window.location.href = "article_list.html"
+            //             }
+            //         }
+            //     })
+
+            // })
+
+
+
+            //修改按钮注册点击事件
+            $('button.btn-edit').on('click', function (e) {
+                //阻止默认行为
+                e.preventDefault();
+
+                // form表单作用获得数据
+                var form = $('#form')[0];
+                var fd = new FormData(form);
+                // 我们使用formData获取表单中的数据的时候，这个表单元素必须有name属性
+                // 数据中缺少content和state的数据
+                fd.append('content', editor.txt.html());
+                fd.append('state', '已发布');
+
+                //发送请求将数据添加到数据库中
+                $.post({
+                    url: BigNew.article_edit,
+                    data: fd,
+                    //阻止编码
+                    processData: false,
+                    //不需要设置头部
+                    contentType: false,
+                    success: function (res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            // 调用模态框
+                            $('#myModal').modal()
+                            // bootstrp 过渡完后执行
+                            $('#myModal').on('hidden.bs.modal', function () {
+                                // 返回历史页面
+                                window.history.back()
+                            })
+                        }
+                    }
+                })
+            })
+
+
+            // 存为草稿
+
+            $(".btn-draft").on("click", function (e) {
+                e.preventDefault()
+                // form表单作用获得数据
+                var form = $('#form')[0];
+                var fd = new FormData(form);
+                // 我们使用formData获取表单中的数据的时候，这个表单元素必须有name属性
+                // 数据中缺少content和state的数据
+                fd.append('content', editor.txt.html());
+                // fd.append('state', '已发布');
+
+                //发送请求将数据添加到数据库中
+                $.post({
+                    url: BigNew.article_edit,
+                    data: fd,
+                    //阻止编码
+                    processData: false,
+                    //不需要设置头部
+                    contentType: false,
+                    success: function (res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            // 调用模态框
+                            $('#myModal').modal()
+                            // bootstrp 过渡完后执行
+                            $('#myModal').on('hidden.bs.modal', function () {
+                                // 返回历史页面
+                                window.history.back()
+                            })
+                        }
+                    }
+                })
+
+
+            })
+
+
+
+
+
+
+        })
+
+
+    </script>
+
+
+
 </body>
 
 </html>

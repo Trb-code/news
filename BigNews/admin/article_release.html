@@ -12,17 +12,36 @@
     <link rel="stylesheet" href="css/main.css">
     <!-- jq -->
     <script src="./libs/jquery-1.12.4.min.js"></script>
+    <!-- 日期插件引入 -->
+
+    <link rel="stylesheet" href="./jedate-6.5.0/test/jeDate-test.css">
+    <link rel="stylesheet" href="./jedate-6.5.0/skin/jedate.css">
+    <script src="./jedate-6.5.0/src/jedate.js"></script>
+    <!-- 请求地址js引入 -->
+    <script src="./libs/http.js"> </script>
+
+    <!-- 富文本插件 -->
+    <script src="./wangEditor-3.1.1/release/wangEditor.js"></script>
     <!-- 模板引擎 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 文章类别 模板引擎 -->
+    <script type="text/html" id="artclass">
+        {{each data }}
+        <option value="{{$value.id}}">{{$value.name}} </option>
+        {{/each}}
+      </script>
+
+
 </head>
 
 <body>
     <div class="container-fluid">
         <div class="common_title">
-            文章编辑
+            文章发布
         </div>
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form" id="form">
+                <input type="hidden" name='id' id="categoryId">
                 <div class="form-group">
                     <label for="inputTitle" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
@@ -38,24 +57,29 @@
                 </div>
                 <div class="form-group">
                     <label for="inputCategory" class="col-sm-2 control-label">文章类别：</label>
-                    <div class="col-sm-4">
-                        <select class="form-control category" name="categoryId">
-                            <option>类别一</option>
+                    <div class="col-sm-3">
+                        <select class="form-control category" name="categoryId" id="selectclass">
+                            <!-- <option>类别一</option>
                             <option>类别二</option>
                             <option>类别三</option>
                             <option selected>类别四</option>
-                            <option>类别五</option>
+                            <option>类别五</option> -->
                         </select>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">发布时间：</label>
-                    <div class="col-sm-4">
+                    <div class="jeinpbox col-sm-4">
+                        <input type="text" name='date' class="jeinput" id="testico" placeholder="YYYY-MM-DD">
+                        <div class="icons jebtns"
+                            onclick="jeDate('#testico',{zIndex:99999,trigger:false,format: 'YYYY-MM-DD'})">
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
-                    <div class="col-sm-10">
+                    <div id="editor" class="col-sm-10">
+                        <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -67,6 +91,85 @@
             </form>
         </div>
     </div>
+
+
+    <script>
+        $(function () {
+
+
+            // 图片预览
+            $("#inputCover").on("change", function () {
+                // console.log(this.files);
+                // console.log($(this).files);
+                let img = this.files[0]
+                // 将图片转为url地址
+                let imgurl = URL.createObjectURL(img)
+                // console.log(imgurl);
+                $(".article_cover").attr("src", imgurl)
+            })
+
+            // 调用日期插件
+            jeDate("#testico", {
+                isinitVal: true,
+                // festival: true,
+                zIndex: 9999999,
+                format: 'YYYY年MM月DD日'
+            });
+
+            // 富文本插件
+            var E = window.wangEditor
+            var editor = new E('#editor')
+            // 或者 var editor = new E( document.getElementById('editor') )
+            editor.create()
+
+            // 模板引擎渲染文章类别
+            $.get({
+                url: BigNew.category_list,
+                success: function (res) {
+                    // console.log(res);
+                    if (res.code == 200) {
+                        var htmlclass = template("artclass", res)
+                        $("#selectclass").html(htmlclass)
+                    }
+                }
+            })
+            let str = window.location.search
+            str = str.slice(1)
+            let endstr = str.slice(3);
+            $("#categoryId").val(endstr)
+            // 发布文章
+            // let form = $("#form")[0]
+            // let data = new FormData(form)
+            // 点击发布
+
+            $(".btn-release").on("click", function (e) {
+                // 阻止默认行为
+                e.preventDefault()
+                let form = document.querySelector("#form")
+                let fn = new FormData(form)
+                fn.append('content', editor.txt.html());
+                fn.append('state', '已发布');
+                $.post({
+                    url: BigNew.article_publish,
+                    data: fn,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        console.log(res);
+                        if (res.code == 200) {
+                        }
+                    }
+                })
+
+            })
+
+        })
+
+
+
+    </script>
+
+
 </body>
 
 </html>

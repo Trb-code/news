@@ -38,7 +38,7 @@
             <td class="text-center">{{$value.date}} </td>
             <td class="text-center">{{$value.state}} </td>
             <td class="text-center">
-                <a href="article_edit.html?+id={{$value.id}} "  class="btn btn-default btn-xs">编辑</a>
+                <a href="article_edit.html?id={{$value.id}} "  class="btn btn-default btn-xs">编辑</a>
                 <a href="javascript:void(0);" data-id="{{$value.id}} " class="btn btn-danger btn-xs delete">删除</a>
             </td>
         </tr>
@@ -211,6 +211,11 @@
                     }
                 })
 
+
+
+
+
+
                 // 点击筛选55
                 $("#btnSearch").on("click", function (e) {
                     e.preventDefault()
@@ -220,17 +225,20 @@
                         data: {
                             type: $('#selCategory').val(),
                             state: $('#selStatus').val(),
+                            page: 1,
+                            perpage: myperpage
                         },
                         success: function (res) {
-                            console.log(res);
+                            // console.log(res);
                             if (res.code == 200) {
+                                var pagesize = $.extend(page, res.data.totalPage)
                                 // 分页插件
                                 // $("#wr-page").wrpage("changepagesize", res.data.totalPage)
                                 // $("#wr-page").changepagesize(res.data.totalPage)
+                            } else {
                             }
                         }
                     })
-
                 })
 
 

@@ -14,12 +14,19 @@
   <!-- 引入请求地址js文件 -->
   <script src="../admin/libs/http.js"></script>
   <script src="./libs/template-web.js"></script>
+
+  <!-- 请求地址引入 -->
+  <script src="./libs/http.js"></script>
+
+  <!-- 分页插件引入 -->
+  <script src="../jquerypage/page.js"></script>
+
   <!-- 模板引擎 -->
   <script type="text/html" id="list">
     {{each data.data}}
     {{if $value.state == "待审核"}}
     <tr class="danger">
-      {{ else}}
+      {{else}}
       <tr>
         {{/if}}
     <td>{{$value.author}} </td>
@@ -177,8 +184,10 @@
         </tbody>
       </table>
       <div class="row text-center">
+        <div id="wr-page">
+        </div>
         <ul class="pagination pagination-sm">
-          <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
+          <!-- <li class="page-item first disabled"><a href="#" class="page-link">首页</a></li>
           <li class="page-item prev disabled"><a href="#" class="page-link">上一页</a></li>
           <li class="page-item active"><a href="#" class="page-link">1</a></li>
           <li class="page-item"><a href="#" class="page-link">2</a></li>
@@ -188,9 +197,12 @@
           <li class="page-item"><a href="#" class="page-link">6</a></li>
           <li class="page-item"><a href="#" class="page-link">7</a></li>
           <li class="page-item next"><a href="#" class="page-link">下一页</a></li>
-          <li class="page-item last"><a href="#" class="page-link">尾页</a></li>
+          <li class="page-item last"><a href="#" class="page-link">尾页</a></li> -->
+
         </ul>
-        <ul id="pagination" class="pagination-sm"></ul>
+        <ul id="pagination" class="pagination-sm">
+
+        </ul>
       </div>
 
     </div>
@@ -198,26 +210,157 @@
 
 
   <script>
-    var mypage = 1
-    var myperpage = 10
-    $.get({
-      url: BigNew.comment_list,
-      data: {
-        page: mypage,
-        perpage: myperpage
-      },
-      success: function (res) {
-        console.log(res);
-        if (res.code == 200) {
-          let htmlstr = template("list", res)
-          $("tbody").html(htmlstr)
+    $(function () {
+
+
+
+
+
+      var mypage = 1
+      var myperpage = 10
+      $.get({
+        url: BigNew.comment_list,
+        data: {
+          page: mypage,
+          perpage: myperpage
+        },
+        success: function (res) {
+          // console.log(res);
+          if (res.code == 200) {
+            let htmlstr = template("list", res)
+            $("tbody").html(htmlstr)
+            // 调用插件
+            $("#wr-page").wrpage({
+              pagesize: res.data.totalCount,
+              wr_current: 1,
+              cb: function (page) {
+                // 点击的页面 id值赋值给ajax的返回数据mypapg
+                mypage = page
+
+                $.get({
+                  url: BigNew.comment_list,
+                  data: {
+                    page: mypage,
+                    perpage: myperpage
+                  },
+                  success: function (res) {
+                    // console.log(res);
+                    if (res.code == 200) {
+                      let htmlstr = template("list", res)
+                      $("tbody").html(htmlstr)
+                    }
+                  }
+                })
+              }
+            })
+          }
         }
+      })
 
-      }
+
+      $("tbody").on("click", ".btn-delete", function () {
+        const dataid = $(this).attr("data-id")
+        // console.log(dataid);
+        $.post({
+          url: BigNew.comment_delete,
+          data: {
+            id: dataid
+          },
+          success: function (res) {
+            // console.log(res);
+            if (res.code == 200) {
+
+
+              // 重新加载页面
+              $.get({
+                url: BigNew.comment_list,
+                data: {
+                  page: mypage,
+                  perpage: myperpage
+                },
+                success: function (res) {
+                  // console.log(res);
+                  if (res.code == 200) {
+                    let htmlstr = template("list", res)
+                    $("tbody").html(htmlstr)
+                  }
+                }
+              })
+            }
+          }
+        })
+      })
+
+
+      // 评论审核通过 btn-pass
+      $("tbody").on("click", ".btn-pass", function () {
+        const dataid = $(this).attr("data-id")
+        // console.log(dataid);
+        $.post({
+          url: BigNew.comment_pass,
+          data: {
+            id: dataid
+          },
+          success: function (res) {
+            // console.log(res);
+            if (res.code == 200) {
+              // 重新加载页面
+              $.get({
+                url: BigNew.comment_list,
+                data: {
+                  page: mypage,
+                  perpage: myperpage
+                },
+                success: function (res) {
+                  // console.log(res);
+                  if (res.code == 200) {
+                    let htmlstr = template("list", res)
+                    $("tbody").html(htmlstr)
+                  }
+                }
+              })
+            }
+          }
+        })
+      })
+
+      // 评论审核不通过 btn-pass
+      $("tbody").on("click", ".btn-deny", function () {
+        const dataid = $(this).attr("data-id")
+        // console.log(dataid);
+        $.post({
+          url: BigNew.comment_reject,
+          data: {
+            id: dataid
+          },
+          success: function (res) {
+            // console.log(res);
+            if (res.code == 200) {
+              // 重新加载页面
+              $.get({
+                url: BigNew.comment_list,
+                data: {
+                  page: mypage,
+                  perpage: myperpage
+                },
+                success: function (res) {
+                  // console.log(res);
+                  if (res.code == 200) {
+                    let htmlstr = template("list", res)
+                    $("tbody").html(htmlstr)
+                  }
+                }
+              })
+            }
+          }
+        })
+      })
+
+
+
+
+
     })
-
-
-
 
   </script>
 

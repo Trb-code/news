@@ -29,16 +29,16 @@
         <td>{{$value.state}}</td>
         <td class="text-center">
           {{if $value.state == '待审核'}}
-          <a href="javascript:editTr( 'rejected',11 );" data-id='{{$value.id}}'
+          <a href="javascript:editTr('rejected',11);" data-id='{{$value.id}}'
             class="btn btn-warning btn-xs btn-pass">批准</a>
           {{else if $value.state == '已通过'}}
-          <a href="javascript:editTr( 'rejected',11 );" data-id='{{$value.id}}'
+          <a href="javascript:editTr('rejected',11);" data-id='{{$value.id}}'
             class="btn btn-primary btn-xs btn-deny">拒绝</a>
           {{else if $value.state == '已拒绝'}}
-          <a href="javascript:editTr( 'rejected',11 );" data-id='{{$value.id}}'
+          <a href="javascript:editTr('rejected',11);" data-id='{{$value.id}}'
             class="btn btn-success btn-xs btn-pass">通过</a>
           {{/if}}
-      <a href="javascript:editTr( 'trashed',11 );" data-id='{{$value.id}}'
+      <a href="javascript:editTr('trashed',11);" data-id='{{$value.id}}'
             class="btn btn-danger btn-xs btn-delete">删除</a>
         </td>
       </tr>

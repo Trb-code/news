@@ -41,7 +41,7 @@
         </div>
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form" id="form">
-                <input type="hidden" name='id' id="categoryId">
+                <!-- <input type="hidden" name='id' id="categoryId"> -->
                 <div class="form-group">
                     <label for="inputTitle" class="col-sm-2 control-label">文章标题：</label>
                     <div class="col-sm-10">
@@ -58,7 +58,7 @@
                 <div class="form-group">
                     <label for="inputCategory" class="col-sm-2 control-label">文章类别：</label>
                     <div class="col-sm-3">
-                        <select class="form-control category" name="categoryId" id="selectclass">
+                        <select class="form-control category" name="categoryId">
                             <!-- <option>类别一</option>
                             <option>类别二</option>
                             <option>类别三</option>
@@ -129,23 +129,24 @@
                     // console.log(res);
                     if (res.code == 200) {
                         var htmlclass = template("artclass", res)
-                        $("#selectclass").html(htmlclass)
+                        $("select.category").html(htmlclass)
                     }
                 }
             })
-            let str = window.location.search
-            str = str.slice(1)
-            let endstr = str.slice(3);
-            $("#categoryId").val(endstr)
+            // let str = window.location.search
+            // str = str.slice(1)
+            // let endstr = str.slice(3);
+            // $("#categoryId").val(endstr)
             // 发布文章
             // let form = $("#form")[0]
             // let data = new FormData(form)
+
             // 点击发布
 
             $(".btn-release").on("click", function (e) {
                 // 阻止默认行为
                 e.preventDefault()
-                let form = document.querySelector("#form")
+                let form = $("#form")[0]
                 let fn = new FormData(form)
                 fn.append('content', editor.txt.html());
                 fn.append('state', '已发布');
@@ -157,11 +158,43 @@
                     success: function (res) {
                         console.log(res);
                         if (res.code == 200) {
+                            alert("新增成功")
+                            window.location.href = "article_list.html"
                         }
                     }
                 })
 
             })
+
+            // 存为草稿 btn-draft
+
+            $(".btn-draft").on("click", function (e) {
+                // 阻止默认行为
+                e.preventDefault()
+                let form = $("#form")[0]
+                let fn = new FormData(form)
+                fn.append('content', editor.txt.html());
+                // fn.append('state', '已发布');
+                $.post({
+                    url: BigNew.article_publish,
+                    data: fn,
+                    contentType: false,
+                    processData: false,
+                    success: function (res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            alert("存草稿成功")
+                            window.location.href = "article_list.html"
+                        }
+                    }
+                })
+
+            })
+
+
+
+
+
 
         })
 

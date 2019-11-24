@@ -9,6 +9,89 @@
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/font-awesome.min.css">
     <link rel="stylesheet" href="css/main.css">
+    <!-- 引入模板引擎 -->
+    <script src="./admin/libs/template-web.js"></script>
+
+    <!-- 准备模板  热点图 -->
+    <script type="text/html" id="hot">
+{{each data}}
+{{if $index===0}}
+<li class="first">
+    {{else}}
+    <li>
+        {{/if}}
+    <a href="./article.html?id={{$value.id}}"><img src="{{$value.cover}}" alt=""></a>
+    <p>{{$value.title}}</p>
+</li>
+{{/each}}
+    </script>
+
+    <!-- 准备模板  最新资讯 -->
+    <script type="text/html" id="news">
+    {{each data}}
+    <div class="common_news_list">
+    <a href="./list.html?id={{$value.id}}" class="list_pic"><img src="{{$value.cover}}" alt=""></a>
+    <h4><a href="#">{{$value.title}} </a></h4>
+    <p>{{@ $value.intro}}
+    </p>
+    <div class="new_info">
+        <span>标签：{{$value.category}}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;<i class="fa fa-eye"></i>&nbsp;阅读({{$value.read}}
+            )&nbsp;&nbsp;&nbsp;<i class="fa fa-commenting"></i>&nbsp;评论({{$value.comments}} )</span>
+        <b>发布于{{$value.date}}</b>
+    </div>
+    </div>
+
+{{/each}}
+   </script>
+
+    <!-- 最新评论 模板 -->
+    <script type="text/html" id="talk">
+       {{each data}}
+       <li>
+            <span>{{$value.author}}</span>
+            <b><em>{{$value.author}}</em>{{$value.date}} {{$value.time}}说:</b>
+            <strong>{{$value.intro}}</strong>
+        </li>
+       {{/each}}
+   </script>
+
+
+    <!-- 一周热门排行 -->
+    <script type="text/html" id="hotart">
+{{each data}}
+
+{{if $index===0}}
+<li><span class="first">1</span>
+    {{else if $index===1}}
+    <span class="second">2</span>
+    {{else if $index===2}}
+    <li><span class="third">3</span>
+        {{else if $index===3}}
+        <li><span>4</span>
+            {{else if $index===4}}
+        <li><span>5</span>
+            {{else if $index===5}}
+        <li><span>6</span>
+            {{else if $index===6}}
+            <li><span>7</span>
+            {{/if}}
+            <a href="">{{$value.title}}</a></li>           
+        {{/each}}
+    </script>
+
+    <!-- 焦点关注模板 -->
+    <script type="text/html" id="focus">
+    {{each data}}
+    <li><a href="#">{{$value.intro}}</a></li>
+    {{/each}}
+    
+    
+    
+    </script>
+
+
+
+
 </head>
 
 <body>
@@ -228,5 +311,96 @@
     <!-- 引入jq文件 -->
     <script src="./js/jquery-1.12.4.min.js"></script>
 </body>
+
+<script>
+    $(function () {
+
+
+        // 热点图 /index/hotpic
+        $.get({
+            url: "http://localhost:8080/api/v1/index/hotpic",
+            success: function (res) {
+                // console.log(res);
+                if (res.code === 200) {
+                    let htmlhot = template("hot", res)
+                    $(".focus_list").html(htmlhot)
+                }
+            }
+        })
+
+
+        // 最新资讯
+
+        $.get({
+            url: "http://localhost:8080/api/v1/index/latest",
+            success: function (res) {
+                // console.log(res);
+                if (res.code === 200) {
+                    var htmlnews = template("news", res)
+                    $(".common_news").html(htmlnews)
+                }
+
+            }
+        })
+
+
+        // 最新评论
+
+        $.get({
+            url: "http://localhost:8080/api/v1/index/latest_comment",
+            success: function (res) {
+                // console.log(res);
+                if (res.code === 200) {
+                    var htmltalk = template("talk", res)
+                    $(".comment_list").html(htmltalk)
+                }
+            }
+
+        })
+
+        // 一周热门排行
+        $.get({
+            url: "http://localhost:8080/api/v1/index/rank",
+            success: function (res) {
+                // console.log(res);
+                if (res.code === 200) {
+                    var htmltalk = template("hotart", res)
+                    $(".hotrank_list").html(htmltalk)
+
+
+                }
+            }
+
+        })
+
+        // 焦点关注
+        $.get({
+            url: "http://localhost:8080/api/v1/index/attention",
+            success: function (res) {
+                console.log(res);
+                const htmlfocus = template("focus", res)
+                $(".guanzhu_list").html(htmlfocus)
+            }
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+    })
+
+
+
+
+
+</script>
 
 </html>

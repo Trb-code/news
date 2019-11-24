@@ -209,6 +209,45 @@
     <script src="./js/template-web.js"></script>
     <script src="./js/jquery-1.12.4.min.js"></script>
 
+
+    <script type="text/html" id="hotart">
+
+
+
+
+</script>
+
+
+
+
+
+    <script>
+        $(function () {
+
+            // 最新资讯列表
+            // 获取页面id
+            let str = window.location.search
+            str = str.slice(1)
+            let endstr = str.slice(3);
+            // console.log(endstr);
+            $.get({
+                url: "http://localhost:8080/api/v1/index/article",
+                data: { id: endstr },
+                success: function (res) {
+                    console.log(res);
+
+
+                }
+
+
+            })
+
+
+
+
+
+        })
+    </script>
 </body>
 
 </html>
